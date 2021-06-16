@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import Post from './Post';
+import { db } from './firebase';
 
 function App() {
-  const [posts, setPosts] = useState([
-    {
-      username: "uchiha01",
-      caption: "time flies",
-      imageUrl: "https://avatars.mds.yandex.net/get-zen_doc/1908497/pub_5cbcac5a6c165100b0a5252f_5cbdfdcdaa025b00b47b78dc/scale_1200" },
+  const [posts, setPosts] = useState([]);
 
-      {
-        username: "naruto_uzumaki",
-        caption: "helloooo there!",
-        imageUrl: "https://bipbap.ru/wp-content/uploads/2017/10/Naruto-Uzumaki-narutoxpert-37509313-1024-663-640x414.jpg" }
-  ]);
+  useEffect(() => {
+    db.collection('posts').onSnapshot(snapshot => {
+      //the code fires every time a new post is added
+      setPosts(snapshot.docs.map(doc => ({
+        id: doc.id,
+        post: doc.data()
+      })));
+    })
+  }, []);
 
   return (
     <div className="app">      
@@ -28,8 +29,8 @@ function App() {
       <h1>this is an Instagram clone with React, lets gooo!</h1>
 
       {
-        posts.map(post => (
-          <Post username={post.username} caption={post.caption} imageUrl={post.imageUrl}/>
+        posts.map(({id, post}) => (
+          <Post key={id} username={post.username} caption={post.caption} imageUrl={post.imageUrl}/>
         ))
       }
       
